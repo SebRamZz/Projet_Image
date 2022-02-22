@@ -1,6 +1,7 @@
 import fr.unistra.pelican.ByteImage;
 import fr.unistra.pelican.algorithms.io.ImageLoader;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -8,7 +9,7 @@ import java.util.Arrays;
 import fr.unistra.pelican.Image;
 import fr.unistra.pelican.algorithms.visualisation.Viewer2D;
 
-public class Test {
+public class Partie1 {
 
 
     public static void median(Image image) {
@@ -23,6 +24,7 @@ public class Test {
         for (int x = 1; x < image.getXDim() - 1; x++) {
             for (int y = 1; y < image.getYDim() - 1; y++) {
                 // calcul de la mediane
+
                 int[] arr = { //
                         image.getPixelXYBByte(x, y, 0),
                         image.getPixelXYBByte(x + 1, y + 1, 0),
@@ -47,24 +49,45 @@ public class Test {
 
 
     public static void main(String[] args) throws IOException {
-        Image test = ImageLoader.exec("Z:\\Image\\maldive.jpg");
-        median(test);
-        double[][] histo = getHisto(test, 1);
+        Image image = ImageLoader.exec("Z:\\Image\\maldive.jpg");
+        File folder = new File("Z:\\Image");
+        Recherche(folder);
+        double[][] histo = getHisto(image, 0);
 
 
-        double[][] histoRouge = getHisto(test, 0);
-        double[][] histoVert = getHisto(test, 1);
-        double[][] histoBleu = getHisto(test, 2);
+        double[][] histoRouge = getHisto(image, 0);
+        double[][] histoVert = getHisto(image, 1);
+        double[][] histoBleu = getHisto(image, 2);
 
-        double[][] nvBleu= discretisation(histoBleu,100);
-        double[][] nvRouge= discretisation(histoRouge,10);
-        double[][] nvVert= discretisation(histoVert,10);
+        double[][] nvBleu = discretisation(histoBleu, 10);
+        double[][] nvRouge = discretisation(histoRouge, 10);
+        double[][] nvVert = discretisation(histoVert, 10);
+        int nbPixels = getPixels(image);
+
+        nvBleu = normalisation(histoBleu, 5);
+        nvRouge = normalisation(histoRouge, 5);
+        nvVert = normalisation(histoVert, 5);
+
 
         Histogram.plotHistogram(nvRouge[0], "rouge");
         Histogram.plotHistogram(nvVert[1], "vert");
         Histogram.plotHistogram(nvBleu[2], "bleu");
 
+        normalisation(histo, 0);
     }
+
+    private static void Recherche(File fichier){
+
+            for (File file : fichier.listFiles()) {
+                if (!file.isDirectory()) {
+
+                    System.out.println(file.getName());
+                } else {
+                    Recherche(file);
+                }
+            }
+
+        }
 
     private static double[][] discretisation(double[][] histogram, int nbDiv) {
 
@@ -80,7 +103,7 @@ public class Test {
                     val += histogram[i][nbDiv * j + x];
 
                 }
-                nouvelHisto[i][j] = val / nbDiv;
+                nouvelHisto[i][j] = val;
             }
         }
 
@@ -88,7 +111,32 @@ public class Test {
         return nouvelHisto;
     }
 
+    private static double[][] normalisation(double[][] histogram, int nbPixels) {
+        double [][] histo= new double[3][256];
+        double TotalPixels =0;
+        for (int i = 0; i < histo.length; i++) {
+            for (int y = 0; y < histo[0].length; y++) {
+                TotalPixels += histo[i][y];
+                double pourcentage = (TotalPixels / nbPixels)*100;
+            }
+        }
+        System.out.println(TotalPixels);
+        return histo;
+    }
 
+
+    private static int getPixels(Image image) {
+    int nbPixels=0;
+;      for (int i = 0; i < image.getXDim(); i++) {
+            for (int y = 0; y < image.getYDim(); y++) {
+                nbPixels= image.getPixelXYBByte(i, y, 0);
+                nbPixels= image.getPixelXYBByte(i, y, 1);
+                nbPixels= image.getPixelXYBByte(i, y, 2);
+
+            }
+        }
+        return nbPixels;
+    }
     private static double[][] getHisto(Image image, int canal) {
         double histo[][] = new double[3][256];
         for (int i = 0; i < histo.length; i++) {
@@ -114,6 +162,8 @@ public class Test {
                 }
             }
         }
+
         return histo;
+
     }
 }
