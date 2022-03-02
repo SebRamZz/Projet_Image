@@ -5,44 +5,65 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-
+import java.lang.Math;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.DoubleToIntFunction;
 
 import fr.unistra.pelican.Image;
 import fr.unistra.pelican.algorithms.visualisation.Viewer2D;
 
 import javax.imageio.ImageIO;
 
+import static java.lang.Math.*;
+
+
 public class PartieI {
 
     public static void main(String[] args) throws IOException {
-       /* Image image = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Images\\lenaB.png");
-        Image median = median(image);
-        CanalHisto nvlImage = new CanalHisto(image);
-        nvlImage.getCanalHisto(image);
-        System.out.println(nvlImage.getCRouge());
-        System.out.println(nvlImage.getCVert());
-        System.out.println(nvlImage.getCBleu());
-        double[] nvBleu = discretisation(nvlImage.getCBleu());
-        double[] nvVert = discretisation(nvlImage.getCVert());
-        double[] nvRouge = discretisation(nvlImage.getCRouge());
+        Image image = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\motos\\motos\\000.jpg");
+        Image image2 = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\motos\\motos\\001.jpg");
 
-        nvBleu=normalisation(nvBleu);
-        HistogramTools.plotHistogram(nvBleu, "bleu");
-        median.setColor(true);
-        Viewer2D.exec(median);*/
-        Recherche("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Test");
+        CanalHisto nvlImage = new CanalHisto(image);
+        CanalHisto nvlImageR= new CanalHisto(image2);
+
+
+        double[] nvBleuImage = discretisation(nvlImage.getCBleu());
+        double[] nvVertImage = discretisation(nvlImage.getCVert());
+        double[] nvRougeImage = discretisation(nvlImage.getCRouge());
+        double[] nvBleuImageR = discretisation(nvlImage.getCBleu());
+        double[] nvVertImageR = discretisation(nvlImage.getCVert());
+        double[] nvRougeImageR = discretisation(nvlImage.getCRouge());
+        nvBleuImage=normalisation(nvBleuImage);
+        nvRougeImage=normalisation(nvRougeImage);
+        nvVertImage=normalisation(nvVertImage);
+        nvBleuImageR=normalisation(nvBleuImageR);
+        nvRougeImageR=normalisation(nvRougeImageR);
+        nvVertImageR=normalisation(nvVertImageR);
+        HistogramTools.plotHistogram(nvBleuImage, "bleu");
+        //Recherche("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Test");
+       // nvBleuImage=normalisation(nvBleuImage);
+        Image median = median(image);
+        Image median2 = median(image2);
+        //HistogramTools.plotHistogram(nvBleuImage, "bleu");
+
+       ImageDistance(nvlImage,nvlImageR);
     }
-    public static Image median(Image image){
+
+    public static Image median(Image image) {
         /**
          * Cette fonction appelle la fonction medianCouleur ou medianGris en fonction du nombres de canaux dans une image
          */
-        if (image.getBDim()>2){
-            return medianCouleur(image);}
-        else {
+        ImageCouleur couleur = new ImageCouleur(image);
+        if(couleur.getCouleur()==true){
+        /*if (image.getBDim() > 2) {*/
+            return medianCouleur(image);
+        } else {
             return medianGris(image);
         }
 
     }
+
     public static Image medianCouleur(Image imageDepart) {
         /**
          * Cette fonction applique le filtre median sur l'imageDepart qui est une image en couleur.
@@ -56,57 +77,56 @@ public class PartieI {
             for (int y = 1; y < imageDepart.getYDim() - 1; y++) {
 
 
-                           int[] TabCanal0 = { //
-                                    imageDepart.getPixelXYBByte(x, y, 0),
-                                    imageDepart.getPixelXYBByte(x + 1, y + 1, 0),
-                                    imageDepart.getPixelXYBByte(x - 1, y - 1, 0),
-                                    imageDepart.getPixelXYBByte(x - 1, y, 0),
-                                    imageDepart.getPixelXYBByte(x, y - 1, 0),
-                                    imageDepart.getPixelXYBByte(x - 1, y + 1, 0),
-                                    imageDepart.getPixelXYBByte(x + 1, y - 1, 0),
-                                    imageDepart.getPixelXYBByte(x, y + 1, 0),
-                                    imageDepart.getPixelXYBByte(x + 1, y, 0)};
+                int[] TabCanal0 = { //
+                        imageDepart.getPixelXYBByte(x, y, 0),
+                        imageDepart.getPixelXYBByte(x + 1, y + 1, 0),
+                        imageDepart.getPixelXYBByte(x - 1, y - 1, 0),
+                        imageDepart.getPixelXYBByte(x - 1, y, 0),
+                        imageDepart.getPixelXYBByte(x, y - 1, 0),
+                        imageDepart.getPixelXYBByte(x - 1, y + 1, 0),
+                        imageDepart.getPixelXYBByte(x + 1, y - 1, 0),
+                        imageDepart.getPixelXYBByte(x, y + 1, 0),
+                        imageDepart.getPixelXYBByte(x + 1, y, 0)};
 
 
-                            int[] TabCanal1 = { //
-                                    imageDepart.getPixelXYBByte(x, y, 1),
-                                    imageDepart.getPixelXYBByte(x + 1, y + 1, 1),
-                                    imageDepart.getPixelXYBByte(x - 1, y - 1, 1),
-                                    imageDepart.getPixelXYBByte(x - 1, y, 1),
-                                    imageDepart.getPixelXYBByte(x, y - 1, 1),
-                                    imageDepart.getPixelXYBByte(x - 1, y + 1, 1),
-                                    imageDepart.getPixelXYBByte(x + 1, y - 1, 1),
-                                    imageDepart.getPixelXYBByte(x, y + 1, 1),
-                                    imageDepart.getPixelXYBByte(x + 1, y, 1)
-                            };
-                            int[] TabCanal2 = { //
-                                    imageDepart.getPixelXYBByte(x, y, 2),
-                                    imageDepart.getPixelXYBByte(x + 1, y + 1, 2),
-                                    imageDepart.getPixelXYBByte(x - 1, y - 1, 2),
-                                    imageDepart.getPixelXYBByte(x - 1, y, 2),
-                                    imageDepart.getPixelXYBByte(x, y - 1, 2),
-                                    imageDepart.getPixelXYBByte(x - 1, y + 1, 2),
-                                    imageDepart.getPixelXYBByte(x + 1, y - 1, 2),
-                                    imageDepart.getPixelXYBByte(x, y + 1, 2),
-                                    imageDepart.getPixelXYBByte(x + 1, y, 2)
-                            };
+                int[] TabCanal1 = { //
+                        imageDepart.getPixelXYBByte(x, y, 1),
+                        imageDepart.getPixelXYBByte(x + 1, y + 1, 1),
+                        imageDepart.getPixelXYBByte(x - 1, y - 1, 1),
+                        imageDepart.getPixelXYBByte(x - 1, y, 1),
+                        imageDepart.getPixelXYBByte(x, y - 1, 1),
+                        imageDepart.getPixelXYBByte(x - 1, y + 1, 1),
+                        imageDepart.getPixelXYBByte(x + 1, y - 1, 1),
+                        imageDepart.getPixelXYBByte(x, y + 1, 1),
+                        imageDepart.getPixelXYBByte(x + 1, y, 1)
+                };
+                int[] TabCanal2 = { //
+                        imageDepart.getPixelXYBByte(x, y, 2),
+                        imageDepart.getPixelXYBByte(x + 1, y + 1, 2),
+                        imageDepart.getPixelXYBByte(x - 1, y - 1, 2),
+                        imageDepart.getPixelXYBByte(x - 1, y, 2),
+                        imageDepart.getPixelXYBByte(x, y - 1, 2),
+                        imageDepart.getPixelXYBByte(x - 1, y + 1, 2),
+                        imageDepart.getPixelXYBByte(x + 1, y - 1, 2),
+                        imageDepart.getPixelXYBByte(x, y + 1, 2),
+                        imageDepart.getPixelXYBByte(x + 1, y, 2)
+                };
 
-                            Arrays.sort(TabCanal0);
-                            Arrays.sort(TabCanal1);
-                            Arrays.sort(TabCanal2);
-                            int mediane1 = TabCanal0[TabCanal0.length / 2];
-                            int mediane2 = TabCanal1[TabCanal1.length / 2];
-                            int mediane3 = TabCanal2[TabCanal2.length / 2];
-                            new_image.setPixelXYBByte(x, y, 0, mediane1);
-                            new_image.setPixelXYBByte(x, y, 1, mediane2);
-                            new_image.setPixelXYBByte(x, y, 2, mediane3);
-                        }
-                    }
-                
-                    
-
-                return new_image;
+                Arrays.sort(TabCanal0);
+                Arrays.sort(TabCanal1);
+                Arrays.sort(TabCanal2);
+                int mediane1 = TabCanal0[TabCanal0.length / 2];
+                int mediane2 = TabCanal1[TabCanal1.length / 2];
+                int mediane3 = TabCanal2[TabCanal2.length / 2];
+                new_image.setPixelXYBByte(x, y, 0, mediane1);
+                new_image.setPixelXYBByte(x, y, 1, mediane2);
+                new_image.setPixelXYBByte(x, y, 2, mediane3);
             }
+        }
+
+
+        return new_image;
+    }
 
     public static Image medianGris(Image imageDepart) {
         /**
@@ -146,15 +166,15 @@ public class PartieI {
     private static File[] Recherche(String fichier) throws IOException {
 
 
-          File folder = new File(fichier);
-        File[] listeImage= folder.listFiles();
-        for (int i=0; i <listeImage.length; i++) {
+        File folder = new File(fichier);
+        File[] listeImage = folder.listFiles();
+        for (int i = 0; i < listeImage.length; i++) {
 
-               Image image= median(ImageLoader.exec(String.valueOf(listeImage[i])));
-                System.out.println(listeImage[i].getName());
+            Image image = median(ImageLoader.exec(String.valueOf(listeImage[i])));
+            System.out.println(listeImage[i].getName());
             image.setColor(true);
             Viewer2D.exec(image);
-                /**/
+            /**/
         }
         return listeImage;
     }
@@ -173,15 +193,15 @@ public class PartieI {
     }
 
     private static double[] normalisation(double[] histogram) {
-        double pourcentage=0;
+        double pourcentage = 0;
         double[] histo = new double[histogram.length];
         int totalPixels = 0;
 
 
-        for (int i = 0 ; i < histogram.length;i++){
+        for (int i = 0; i < histogram.length; i++) {
             totalPixels += histogram[i];
             histo[i] = (histogram[i] * 100) / totalPixels;
-             pourcentage += histo[i];
+            pourcentage += histo[i];
         }
         System.out.println(totalPixels);
 
@@ -204,8 +224,51 @@ public class PartieI {
     }
 
 
-    public static void ImageSimilaire(){
+    public static double ImageDistance(CanalHisto reference, CanalHisto imageComp) throws IOException {
+        ImageCouleur couleur1 = new ImageCouleur(reference.getImage());
+        ImageCouleur couleur2= new ImageCouleur(imageComp.getImage());
+        TreeMap<Double,Image> liste = new TreeMap<>();
+        double distance1 = 0;
+        double distance2 = 0;
+        double distance3 = 0;
+        Viewer2D.exec(reference.getImage());
 
+        Viewer2D.exec(imageComp.getImage());
+
+        int expo = 2;
+
+        //Test image en couleur
+        if(couleur1.getCouleur()==true && couleur2.getCouleur()==true) { //reference.getImg().getBDim() > 2 && imageComp.getImg().getBDim() > 2
+
+            for (int c = 0; c < reference.getCBleu().length; c++) {
+                double calcul = reference.getCBleu()[c] - imageComp.getCBleu()[c];
+                distance1 += Math.pow(calcul, expo);
+            }
+            for (int d = 0; d < reference.getCVert().length; d++) {
+                double calcul = reference.getCVert()[d] - imageComp.getCVert()[d];
+                distance2 += Math.pow(calcul, expo);
+            }
+
+        }
+
+            for (int g = 0; g < reference.getCRouge().length; g++) {
+                double calcul = reference.getCRouge()[g] - imageComp.getCRouge()[g];
+                distance3 += Math.pow(calcul, expo);
+            }
+
+        double distanceEuclidienne1= Math.sqrt(distance1);
+        double distanceEuclidienne2 = Math.sqrt(distance2);
+        double distanceEuclidienne3= Math.sqrt(distance3);
+        double distanceFinale=distanceEuclidienne1+distanceEuclidienne2+distanceEuclidienne3;
+        liste.put(distanceFinale,reference.getImage());
+        Set set=liste.keySet();
+        System.out.println(set);
+    return distanceFinale;
     }
+
+   /*public static double ImageSimilaire(CanalHisto reference, CanalHisto imageComp) throws IOException
+    {
+
+    }*/
 }
 
