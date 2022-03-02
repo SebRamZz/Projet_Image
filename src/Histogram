@@ -19,14 +19,14 @@ import fr.unistra.pelican.Image;
 import fr.unistra.pelican.algorithms.io.ImageLoader;
 import fr.unistra.pelican.algorithms.visualisation.Viewer2D;
 
-public class Histogram {
+public class HistogramTools {
 
 
     /**
      * @param histogram tableau représsentant l'histogramme
      * @throws IOException
      */
-    public static void plotHistogram(double [] histogram) throws IOException{
+    public static void plotHistogram(double [] histogram,String couleur) throws IOException{
 
         XYSeries myseries = new XYSeries("Nombre de pixels");
         for(int i=0;i<histogram.length;i++){
@@ -34,7 +34,7 @@ public class Histogram {
         }
         XYSeriesCollection myseriescollection = new XYSeriesCollection(myseries);
 
-        JFreeChart jfreechart = ChartFactory.createXYBarChart("Histogramme de l'image", "Niveaux de gris", false, "Nombre de pixels", myseriescollection, PlotOrientation.VERTICAL, true, false, false);
+        JFreeChart jfreechart = ChartFactory.createXYBarChart("Histogramme de l'image", "Niveaux de " +couleur, false, "Nombre de pixels", myseriescollection, PlotOrientation.VERTICAL, true, false, false);
         jfreechart.setBackgroundPaint(Color.white);
         XYPlot xyplot = jfreechart.getXYPlot();
 
@@ -80,4 +80,5 @@ public class Histogram {
     }
 
 
+}
 }
