@@ -1,6 +1,7 @@
 import fr.unistra.pelican.ByteImage;
 import fr.unistra.pelican.algorithms.io.ImageLoader;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -9,161 +10,202 @@ import java.util.Arrays;
 import fr.unistra.pelican.Image;
 import fr.unistra.pelican.algorithms.visualisation.Viewer2D;
 
-public class Partie1 {
+import javax.imageio.ImageIO;
 
-
-    public static void median(Image image) {
-        /**
-         * Cette fonction applique le filtre median sur l'image
-         *
-         * @param image l'image bruitée à traiter
-         *
-         */
-        ByteImage new_image = new ByteImage(image.getXDim(), image.getYDim(), 1, 1, 1);
-
-        for (int x = 1; x < image.getXDim() - 1; x++) {
-            for (int y = 1; y < image.getYDim() - 1; y++) {
-                // calcul de la mediane
-
-                int[] arr = { //
-                        image.getPixelXYBByte(x, y, 0),
-                        image.getPixelXYBByte(x + 1, y + 1, 0),
-                        image.getPixelXYBByte(x - 1, y - 1, 0),
-                        image.getPixelXYBByte(x - 1, y, 0),
-                        image.getPixelXYBByte(x, y - 1, 0),
-                        image.getPixelXYBByte(x - 1, y + 1, 0),
-                        image.getPixelXYBByte(x + 1, y - 1, 0),
-                        image.getPixelXYBByte(x, y + 1, 0),
-                        image.getPixelXYBByte(x + 1, y, 0)
-                };
-
-                System.out.println(arr);
-                Arrays.sort(arr);
-                int mediane = arr[arr.length / 2];
-                new_image.setPixelXYBByte(x, y, 0, mediane);
-            } // y for
-        } // x for
-        new_image.setColor(false); //si false => affichage de chaque canal, si true => affichage d'une image couleur
-        Viewer2D.exec(new_image);
-    } // median
-
+public class PartieI {
 
     public static void main(String[] args) throws IOException {
-        Image image = ImageLoader.exec("Z:\\Image\\maldive.jpg");
-        File folder = new File("Z:\\Image");
-        Recherche(folder);
-        double[][] histo = getHisto(image, 0);
+       /* Image image = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Images\\lenaB.png");
+        Image median = median(image);
+        CanalHisto nvlImage = new CanalHisto(image);
+        nvlImage.getCanalHisto(image);
+        System.out.println(nvlImage.getCRouge());
+        System.out.println(nvlImage.getCVert());
+        System.out.println(nvlImage.getCBleu());
+        double[] nvBleu = discretisation(nvlImage.getCBleu());
+        double[] nvVert = discretisation(nvlImage.getCVert());
+        double[] nvRouge = discretisation(nvlImage.getCRouge());
+
+        nvBleu=normalisation(nvBleu);
+        HistogramTools.plotHistogram(nvBleu, "bleu");
+        median.setColor(true);
+        Viewer2D.exec(median);*/
+        Recherche("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Test");
+    }
+    public static Image median(Image image){
+        /**
+         * Cette fonction appelle la fonction medianCouleur ou medianGris en fonction du nombres de canaux dans une image
+         */
+        if (image.getBDim()>2){
+            return medianCouleur(image);}
+        else {
+            return medianGris(image);
+        }
+
+    }
+    public static Image medianCouleur(Image imageDepart) {
+        /**
+         * Cette fonction applique le filtre median sur l'imageDepart qui est une image en couleur.
+         *
+         * @param imageDepart l'imageDepart est l'image bruité à réparer
+         *
+         */
+        ByteImage new_image = new ByteImage(imageDepart.getXDim(), imageDepart.getYDim(), 1, 1, 3);
+
+        for (int x = 1; x < imageDepart.getXDim() - 1; x++) {
+            for (int y = 1; y < imageDepart.getYDim() - 1; y++) {
 
 
-        double[][] histoRouge = getHisto(image, 0);
-        double[][] histoVert = getHisto(image, 1);
-        double[][] histoBleu = getHisto(image, 2);
-
-        double[][] nvBleu = discretisation(histoBleu, 10);
-        double[][] nvRouge = discretisation(histoRouge, 10);
-        double[][] nvVert = discretisation(histoVert, 10);
-        int nbPixels = getPixels(image);
-
-        nvBleu = normalisation(histoBleu, 5);
-        nvRouge = normalisation(histoRouge, 5);
-        nvVert = normalisation(histoVert, 5);
+                           int[] TabCanal0 = { //
+                                    imageDepart.getPixelXYBByte(x, y, 0),
+                                    imageDepart.getPixelXYBByte(x + 1, y + 1, 0),
+                                    imageDepart.getPixelXYBByte(x - 1, y - 1, 0),
+                                    imageDepart.getPixelXYBByte(x - 1, y, 0),
+                                    imageDepart.getPixelXYBByte(x, y - 1, 0),
+                                    imageDepart.getPixelXYBByte(x - 1, y + 1, 0),
+                                    imageDepart.getPixelXYBByte(x + 1, y - 1, 0),
+                                    imageDepart.getPixelXYBByte(x, y + 1, 0),
+                                    imageDepart.getPixelXYBByte(x + 1, y, 0)};
 
 
-        Histogram.plotHistogram(nvRouge[0], "rouge");
-        Histogram.plotHistogram(nvVert[1], "vert");
-        Histogram.plotHistogram(nvBleu[2], "bleu");
+                            int[] TabCanal1 = { //
+                                    imageDepart.getPixelXYBByte(x, y, 1),
+                                    imageDepart.getPixelXYBByte(x + 1, y + 1, 1),
+                                    imageDepart.getPixelXYBByte(x - 1, y - 1, 1),
+                                    imageDepart.getPixelXYBByte(x - 1, y, 1),
+                                    imageDepart.getPixelXYBByte(x, y - 1, 1),
+                                    imageDepart.getPixelXYBByte(x - 1, y + 1, 1),
+                                    imageDepart.getPixelXYBByte(x + 1, y - 1, 1),
+                                    imageDepart.getPixelXYBByte(x, y + 1, 1),
+                                    imageDepart.getPixelXYBByte(x + 1, y, 1)
+                            };
+                            int[] TabCanal2 = { //
+                                    imageDepart.getPixelXYBByte(x, y, 2),
+                                    imageDepart.getPixelXYBByte(x + 1, y + 1, 2),
+                                    imageDepart.getPixelXYBByte(x - 1, y - 1, 2),
+                                    imageDepart.getPixelXYBByte(x - 1, y, 2),
+                                    imageDepart.getPixelXYBByte(x, y - 1, 2),
+                                    imageDepart.getPixelXYBByte(x - 1, y + 1, 2),
+                                    imageDepart.getPixelXYBByte(x + 1, y - 1, 2),
+                                    imageDepart.getPixelXYBByte(x, y + 1, 2),
+                                    imageDepart.getPixelXYBByte(x + 1, y, 2)
+                            };
 
-        normalisation(histo, 0);
+                            Arrays.sort(TabCanal0);
+                            Arrays.sort(TabCanal1);
+                            Arrays.sort(TabCanal2);
+                            int mediane1 = TabCanal0[TabCanal0.length / 2];
+                            int mediane2 = TabCanal1[TabCanal1.length / 2];
+                            int mediane3 = TabCanal2[TabCanal2.length / 2];
+                            new_image.setPixelXYBByte(x, y, 0, mediane1);
+                            new_image.setPixelXYBByte(x, y, 1, mediane2);
+                            new_image.setPixelXYBByte(x, y, 2, mediane3);
+                        }
+                    }
+                
+                    
+
+                return new_image;
+            }
+
+    public static Image medianGris(Image imageDepart) {
+        /**
+         * Cette fonction applique le filtre median sur l'imageDepart qui est une image de couleur grise.
+         *
+         * @param imageDepart l'imageDepart bruitée à traiter
+         *
+         */
+        ByteImage new_image = new ByteImage(imageDepart.getXDim(), imageDepart.getYDim(), 1, 1, 1);
+
+        for (int x = 1; x < imageDepart.getXDim() - 1; x++) {
+            for (int y = 1; y < imageDepart.getYDim() - 1; y++) {
+                int[] array1 = {
+                        imageDepart.getPixelXYBByte(x, y, 0),
+                        imageDepart.getPixelXYBByte(x + 1, y + 1, 0),
+                        imageDepart.getPixelXYBByte(x - 1, y - 1, 0),
+                        imageDepart.getPixelXYBByte(x - 1, y, 0),
+                        imageDepart.getPixelXYBByte(x, y - 1, 0),
+                        imageDepart.getPixelXYBByte(x - 1, y + 1, 0),
+                        imageDepart.getPixelXYBByte(x + 1, y - 1, 0),
+                        imageDepart.getPixelXYBByte(x, y + 1, 0),
+                        imageDepart.getPixelXYBByte(x + 1, y, 0)};
+
+                Arrays.sort(array1);
+
+                int mediane1 = array1[array1.length / 2];
+
+                new_image.setPixelXYBByte(x, y, 0, mediane1);
+
+            }
+        }
+
+        return new_image;
     }
 
-    private static void Recherche(File fichier){
 
-            for (File file : fichier.listFiles()) {
-                if (!file.isDirectory()) {
+    private static File[] Recherche(String fichier) throws IOException {
 
-                    System.out.println(file.getName());
-                } else {
-                    Recherche(file);
-                }
-            }
 
+          File folder = new File(fichier);
+        File[] listeImage= folder.listFiles();
+        for (int i=0; i <listeImage.length; i++) {
+
+               Image image= median(ImageLoader.exec(String.valueOf(listeImage[i])));
+                System.out.println(listeImage[i].getName());
+            image.setColor(true);
+            Viewer2D.exec(image);
+                /**/
         }
+        return listeImage;
+    }
 
-    private static double[][] discretisation(double[][] histogram, int nbDiv) {
+    private static double[] discretisation(double[] histogram) {
 
-        int nvlValeur = histogram[0].length / nbDiv; //division de la taille de l'histogramme par un nombre donné en paramètres.
-        double[][] nouvelHisto = new double[3][nvlValeur];
+        /*int nvlValeur = histogram.length / nbDiv;*/ //division de la taille de l'histogramme par un nombre donné en paramètres.
+        double[] nouvelHisto = new double[histogram.length / 2];
 
-        for (int i = 0; i < nouvelHisto.length; i++) { //Ici on a 3 (RGB), on regarde 0-2
-            for (int j = 0; j < nouvelHisto[0].length; j++) { //Ici on regarde la colonne
+        for (int i = 0; i < nouvelHisto.length - 1; i = i + 2) {
 
-                double val = 0;
-                for (int x = 0; x < nbDiv; x++) {
-
-                    val += histogram[i][nbDiv * j + x];
-
-                }
-                nouvelHisto[i][j] = val;
-            }
+            nouvelHisto[i] = histogram[i] + histogram[i + 1];  //
         }
-
 
         return nouvelHisto;
     }
 
-    private static double[][] normalisation(double[][] histogram, int nbPixels) {
-        double [][] histo= new double[3][256];
-        double TotalPixels =0;
-        for (int i = 0; i < histo.length; i++) {
-            for (int y = 0; y < histo[0].length; y++) {
-                TotalPixels += histo[i][y];
-                double pourcentage = (TotalPixels / nbPixels)*100;
-            }
+    private static double[] normalisation(double[] histogram) {
+        double pourcentage=0;
+        double[] histo = new double[histogram.length];
+        int totalPixels = 0;
+
+
+        for (int i = 0 ; i < histogram.length;i++){
+            totalPixels += histogram[i];
+            histo[i] = (histogram[i] * 100) / totalPixels;
+             pourcentage += histo[i];
         }
-        System.out.println(TotalPixels);
+        System.out.println(totalPixels);
+
         return histo;
     }
 
 
-    private static int getPixels(Image image) {
-    int nbPixels=0;
-;      for (int i = 0; i < image.getXDim(); i++) {
-            for (int y = 0; y < image.getYDim(); y++) {
-                nbPixels= image.getPixelXYBByte(i, y, 0);
-                nbPixels= image.getPixelXYBByte(i, y, 1);
-                nbPixels= image.getPixelXYBByte(i, y, 2);
-
-            }
-        }
-        return nbPixels;
-    }
-    private static double[][] getHisto(Image image, int canal) {
-        double histo[][] = new double[3][256];
-        for (int i = 0; i < histo.length; i++) {
-            for (int j = 0; j < histo.length; j++) {
-                histo[i][j] = 0;
-            }
-
+    public static double[] getHisto(Image image, int canal) {
+        double histogramme[] = new double[256];
+        for (int i = 0; i < histogramme.length; i++) {
+            histogramme[i] = 0;
         }
         for (int x = 0; x < image.getXDim(); x++) {
             for (int y = 0; y < image.getYDim(); y++) {
-                for (int k = 0; k < image.getBDim(); k++) {
-
-                    int val = image.getPixelXYBByte(x, y, k);
-                    if (k == 0) {
-                        histo[k][val] += 1;
-                    } else if (k == 1) {
-                        histo[k][val] += 1;
-                    } else if (k == 2) {
-                        histo[k][val] += 1;
-
-                    }
-
-                }
+                histogramme[image.getPixelXYBByte(x, y, canal)] += 1;
             }
         }
 
-        return histo;
+        return histogramme;
+    }
+
+
+    public static void ImageSimilaire(){
 
     }
 }
+
