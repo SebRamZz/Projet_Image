@@ -1,0 +1,120 @@
+import fr.unistra.pelican.Image;
+import fr.unistra.pelican.algorithms.io.ImageLoader;
+
+public class CanalHistoHSV {
+
+
+        double [] histoC;
+        double[] cS;
+        double[] cV;
+        Image image;
+        String nomImage;
+        String lien;
+
+        public CanalHistoHSV(String nomImage,String lien) {
+            this.lien=lien;
+            this.image=ImageLoader.exec(lien);
+            getCS(image);
+            getCH(image);
+            getcv(image);
+        }
+
+      public void getCanalHisto(Image image) {
+
+            if (image.getBDim() > 2) {
+                cV = PartieHSV.getHisto(image, 1);
+                cS = PartieHSV.getHisto(image, 2);
+            }
+            histoC = PartieHSV.getHisto(image, 0);
+        }
+
+        public Image getImage(){return image;}
+
+
+        public double[] getCH(Image image) {
+            int hauteur = image.getYDim();
+            int largeur = image.getXDim();
+            double [] HSV;
+           this.histoC = new double[361];
+
+            for(int i = 0; i < histoC.length; i++){
+               histoC[i]=0;
+            }
+
+            for(int x = 0; x < largeur; x++){
+                for(int y = 0; y < hauteur; y++){
+                   HSV = PartieHSV.conversionRGBenHSV(image,x,y);
+                     histoC[(int)(HSV[0])]+=1;
+                }
+            }
+            return histoC;
+        }
+
+
+        public double[] getcv(Image image) {
+            int hauteur = image.getYDim();
+            int largeur = image.getXDim();
+            double [] HSV;
+            this.cV = new double[101];
+
+            for(int i = 0; i < cV.length; i++){
+                cV[i]=0;
+            }
+
+            for(int x = 0; x < largeur; x++){
+                for(int y = 0; y < hauteur; y++){
+                  HSV = PartieHSV.conversionRGBenHSV(image,x,y);
+                    cV[(int)(HSV[2]*100)]+=1;;
+                }
+            }
+            return cV;
+        }
+
+        public double[] getCS(Image image) {
+            int hauteur = image.getYDim();
+            int largeur = image.getXDim();
+            double [] HSV;
+            this.cS = new double[101];
+
+            for(int i = 0; i < cS.length; i++){
+                cS[i]=0;
+            }
+
+
+            for(int x = 0; x < largeur; x++){
+                for(int y = 0; y < hauteur; y++){
+                     HSV = PartieHSV.conversionRGBenHSV(image,x,y);
+                    cS[(int)(HSV[1]*100)]+=1;
+                }
+            }
+            return cS;
+        }
+
+
+        public void setcH(double[] cH) {
+            this.histoC = cH;
+        }
+
+        public void setcS(double[] cS) {
+            this.cS = cS;
+        }
+
+        public void setcV(double[] cV) {
+            this.cV = cV;
+        }
+
+        public void setImage(Image image) {
+            this.image = image;
+        }
+    public double[] getcH() {
+        return  histoC;
+    }
+
+    public double[] getcS() {
+        return cS;
+    }
+
+    public double[] getcV() {
+        return cV;
+    }
+}
