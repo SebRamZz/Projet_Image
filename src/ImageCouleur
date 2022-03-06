@@ -1,0 +1,26 @@
+import fr.unistra.pelican.Image;
+
+public class ImageCouleur {
+    private Image image;
+    public static boolean couleur;
+
+    public ImageCouleur(Image image){
+        this.image=image;
+        couleur(image);
+    }
+
+    public static boolean couleur(Image image) {
+        if (image.getBDim() > 2) {
+               couleur=true;
+        } else {
+            couleur=false;
+        }
+     return couleur;
+    }
+
+    public Image getImage(){return image;}
+
+    public static boolean getCouleur() {
+        return couleur;
+    }
+}
