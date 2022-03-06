@@ -1,19 +1,19 @@
 import fr.unistra.pelican.ByteImage;
 import fr.unistra.pelican.algorithms.io.ImageLoader;
-
+import java.io.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
 import java.lang.Math;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.function.DoubleToIntFunction;
 
 import fr.unistra.pelican.Image;
 import fr.unistra.pelican.algorithms.visualisation.Viewer2D;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+import javax.swing.*;
 
 import static java.lang.Math.*;
 
@@ -21,33 +21,33 @@ import static java.lang.Math.*;
 public class PartieI {
 
     public static void main(String[] args) throws IOException {
-        Image image = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\motos\\motos\\000.jpg");
-        Image image2 = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\motos\\motos\\001.jpg");
+        Image image = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Test\\cercle.png");
+        Image image2 = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Test\\cercle.png");
+        JFrame f = new JFrame("Ajouter une image dans JPanel");
+        JPanel panel = new JPanel();
+        panel.setBounds(50, 50, 1920, 1271);
+        BufferedImage img = ImageIO.read(new File("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\etape\\paysage1.jpg"));
+        JLabel pic = new JLabel(new ImageIcon(img));
+        panel.add(pic);
+        f.add(panel);
+        f.setSize(400, 400);
+        f.setLayout(null);
+        f.setVisible(true);
+       CanalHisto nvlImage = new CanalHisto("paysage1.jpg","C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\etape\\paysage1.jpg");
 
-        CanalHisto nvlImage = new CanalHisto(image);
-        CanalHisto nvlImageR= new CanalHisto(image2);
-
-
-        double[] nvBleuImage = discretisation(nvlImage.getCBleu());
-        double[] nvVertImage = discretisation(nvlImage.getCVert());
-        double[] nvRougeImage = discretisation(nvlImage.getCRouge());
-        double[] nvBleuImageR = discretisation(nvlImage.getCBleu());
-        double[] nvVertImageR = discretisation(nvlImage.getCVert());
-        double[] nvRougeImageR = discretisation(nvlImage.getCRouge());
-        nvBleuImage=normalisation(nvBleuImage);
-        nvRougeImage=normalisation(nvRougeImage);
-        nvVertImage=normalisation(nvVertImage);
-        nvBleuImageR=normalisation(nvBleuImageR);
-        nvRougeImageR=normalisation(nvRougeImageR);
-        nvVertImageR=normalisation(nvVertImageR);
-        HistogramTools.plotHistogram(nvBleuImage, "bleu");
+        /*HistogramTools.plotHistogram(nvBleuImage, "bleu");*/
         //Recherche("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Test");
-       // nvBleuImage=normalisation(nvBleuImage);
-        Image median = median(image);
-        Image median2 = median(image2);
-        //HistogramTools.plotHistogram(nvBleuImage, "bleu");
+        //nvBleuImage=normalisation(nvBleuImage);
 
-       ImageDistance(nvlImage,nvlImageR);
+        //median2.setColor(true);
+        Recherche(nvlImage);
+        //Viewer2D.exec(median);
+        //HistogramTools.plotHistogram(nvBleuImage, "bleu");
+       // Image test = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\motos\\motos\\");
+
+        //test.setColor(true);
+
+
     }
 
     public static Image median(Image image) {
@@ -124,7 +124,6 @@ public class PartieI {
             }
         }
 
-
         return new_image;
     }
 
@@ -149,13 +148,11 @@ public class PartieI {
                         imageDepart.getPixelXYBByte(x + 1, y - 1, 0),
                         imageDepart.getPixelXYBByte(x, y + 1, 0),
                         imageDepart.getPixelXYBByte(x + 1, y, 0)};
-
                 Arrays.sort(array1);
 
                 int mediane1 = array1[array1.length / 2];
 
                 new_image.setPixelXYBByte(x, y, 0, mediane1);
-
             }
         }
 
@@ -163,32 +160,60 @@ public class PartieI {
     }
 
 
-    private static File[] Recherche(String fichier) throws IOException {
+    private static File[] Recherche(CanalHisto histo) throws IOException {
 
-
-        File folder = new File(fichier);
+        int cpt = 0;
+        histo.setImage(median(histo.getImage()));
+        histo = getHistoTraite(histo);
+        File folder = new File("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\etape");
         File[] listeImage = folder.listFiles();
-        for (int i = 0; i < listeImage.length; i++) {
+        TreeMap<Double, String> test = new TreeMap<>();
+        int linecounter = 0;
 
-            Image image = median(ImageLoader.exec(String.valueOf(listeImage[i])));
-            System.out.println(listeImage[i].getName());
-            image.setColor(true);
-            Viewer2D.exec(image);
-            /**/
+        for (File fichier : listeImage) {
+            System.out.println(fichier.getPath());
+            CanalHisto image = new CanalHisto(fichier.getName(), fichier.getPath());
+            image.setImage(median(ImageLoader.exec(fichier.getPath())));
+            image = getHistoTraite(image);
+            double distanceEuclidienne = ImageDistance(histo, image);
+            test.put(distanceEuclidienne, fichier.getName());
+
+
         }
+
+
+        Set set = test.entrySet();
+        Iterator itr = set.iterator();
+        while (itr.hasNext()) {
+            if (cpt < 10) {
+                Map.Entry test2 = (Map.Entry) itr.next();
+                String im = (String) test2.getValue();
+                    System.out.println(test2);
+
+                cpt++;
+                if (((String) test2.getValue()).contains("paysage")){
+                    linecounter+=1;
+                }
+
+            } else {
+                break;
+            }
+
+        }
+        System.out.println((linecounter*100)/10+"% de precision");
+
+
         return listeImage;
     }
-
     private static double[] discretisation(double[] histogram) {
 
         /*int nvlValeur = histogram.length / nbDiv;*/ //division de la taille de l'histogramme par un nombre donné en paramètres.
-        double[] nouvelHisto = new double[histogram.length / 2];
+        double[] nouvelHisto = new double[histogram.length / 64];
 
-        for (int i = 0; i < nouvelHisto.length - 1; i = i + 2) {
+        for (int i = 0; i < nouvelHisto.length - 1; i=i+2) {
 
-            nouvelHisto[i] = histogram[i] + histogram[i + 1];  //
+            nouvelHisto[i] = histogram[i] + histogram[i];  //
         }
-
         return nouvelHisto;
     }
 
@@ -197,18 +222,32 @@ public class PartieI {
         double[] histo = new double[histogram.length];
         int totalPixels = 0;
 
+        for (int j = 0; j<histogram.length;j++){
+            totalPixels += histogram[j];
+        }
 
         for (int i = 0; i < histogram.length; i++) {
-            totalPixels += histogram[i];
             histo[i] = (histogram[i] * 100) / totalPixels;
             pourcentage += histo[i];
         }
-        System.out.println(totalPixels);
 
         return histo;
     }
 
+    public static CanalHisto getHistoTraite(CanalHisto histo){
+        ImageCouleur image = new ImageCouleur(histo.getImage());
+        if(image.getCouleur()==true){
+            histo.setcVert(discretisation(histo.getCVert()));
+            histo.setcBleu(discretisation(histo.getCBleu()));
+            histo.setcVert(normalisation(histo.getCVert()));
+            histo.setcBleu(normalisation(histo.getCBleu()));
 
+        }
+        histo.setcRouge(discretisation(histo.getCBleu()));
+        histo.setcVert(normalisation(histo.getCVert()));
+
+        return histo;
+    }
     public static double[] getHisto(Image image, int canal) {
         double histogramme[] = new double[256];
         for (int i = 0; i < histogramme.length; i++) {
@@ -225,31 +264,30 @@ public class PartieI {
 
 
     public static double ImageDistance(CanalHisto reference, CanalHisto imageComp) throws IOException {
+
         ImageCouleur couleur1 = new ImageCouleur(reference.getImage());
         ImageCouleur couleur2= new ImageCouleur(imageComp.getImage());
-        TreeMap<Double,Image> liste = new TreeMap<>();
         double distance1 = 0;
         double distance2 = 0;
         double distance3 = 0;
-        Viewer2D.exec(reference.getImage());
-
-        Viewer2D.exec(imageComp.getImage());
+        TreeMap<String, String> test = new TreeMap<>();
+        /*Viewer2D.exec(reference);
+        Viewer2D.exec(imageComp);*/
 
         int expo = 2;
-
         //Test image en couleur
-        if(couleur1.getCouleur()==true && couleur2.getCouleur()==true) { //reference.getImg().getBDim() > 2 && imageComp.getImg().getBDim() > 2
-
+        if(couleur1.getCouleur()==true && couleur2.getCouleur()==true) {
             for (int c = 0; c < reference.getCBleu().length; c++) {
                 double calcul = reference.getCBleu()[c] - imageComp.getCBleu()[c];
                 distance1 += Math.pow(calcul, expo);
+
             }
             for (int d = 0; d < reference.getCVert().length; d++) {
-                double calcul = reference.getCVert()[d] - imageComp.getCVert()[d];
+                double calcul = reference.getCVert()[d] -  imageComp.getCVert()[d];
                 distance2 += Math.pow(calcul, expo);
             }
-
         }
+
 
             for (int g = 0; g < reference.getCRouge().length; g++) {
                 double calcul = reference.getCRouge()[g] - imageComp.getCRouge()[g];
@@ -260,15 +298,11 @@ public class PartieI {
         double distanceEuclidienne2 = Math.sqrt(distance2);
         double distanceEuclidienne3= Math.sqrt(distance3);
         double distanceFinale=distanceEuclidienne1+distanceEuclidienne2+distanceEuclidienne3;
-        liste.put(distanceFinale,reference.getImage());
-        Set set=liste.keySet();
-        System.out.println(set);
+
     return distanceFinale;
     }
 
-   /*public static double ImageSimilaire(CanalHisto reference, CanalHisto imageComp) throws IOException
-    {
 
-    }*/
 }
+
 
