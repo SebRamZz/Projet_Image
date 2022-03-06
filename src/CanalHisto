@@ -6,13 +6,13 @@ public class CanalHisto {
     double[] cBleu;
     double[] cVert;
     Image image;
+    String nomImage;
     String lien;
 
-
-    public CanalHisto(Image image) {
-
-        this.image=image;
-
+    public CanalHisto(String nomImage,String lien) {
+        this.lien=lien;
+        this.image=ImageLoader.exec(lien);
+        getCanalHisto(image);
     }
 
     public void getCanalHisto(Image image) {
@@ -24,6 +24,7 @@ public class CanalHisto {
         cRouge = PartieI.getHisto(image, 0);
     }
 
+    public Image getImage(){return image;}
     public double[] getCRouge() {
         return cRouge;
     }
@@ -36,4 +37,23 @@ public class CanalHisto {
         return cBleu;
     }
 
+    public void setcRouge(double[] cRouge) {
+        this.cRouge = cRouge;
+    }
+
+    public void setcBleu(double[] cBleu) {
+        this.cBleu = cBleu;
+    }
+
+    public void setcVert(double[] cVert) {
+        this.cVert = cVert;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+
 }
+
+
