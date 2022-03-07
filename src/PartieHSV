@@ -7,8 +7,9 @@ import java.util.*;
 import java.lang.Math;
 
 import fr.unistra.pelican.Image;
-
-
+/**
+ * Cette classe contient toutes la partie 3 c'est-à-dire la construction de l'histogramme, la descritisation, la normalisation et la recherche d'image
+ */
 public class PartieHSV {
 
     public static void main(String[] args) throws IOException {
@@ -22,14 +23,12 @@ public class PartieHSV {
         //nvBleuImage=normalisation(nvBleuImage);
 
         //median2.setColor(true);
-       Recherche(nvlImage);
+        Recherche(nvlImage);
         //Viewer2D.exec(median);
         //HistogramTools.plotHistogram(nvBleuImage, "bleu");
         // Image test = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\motos\\motos\\");
 
         //test.setColor(true);
-
-
     }
 
     public static Image median(Image image) {
@@ -43,7 +42,6 @@ public class PartieHSV {
         } else {
             return medianGris(image);
         }
-
     }
 
     public static Image medianCouleur(Image imageDepart) {
@@ -105,7 +103,6 @@ public class PartieHSV {
                 new_image.setPixelXYBByte(x, y, 2, mediane3);
             }
         }
-
         return new_image;
     }
 
@@ -137,11 +134,14 @@ public class PartieHSV {
                 new_image.setPixelXYBByte(x, y, 0, mediane1);
             }
         }
-
         return new_image;
     }
-
-
+    /**
+     * Cette fonction permet de rechercher les images similaire et d'en sortir les 10 meilleurs
+     * @param histo
+     * @return un fichiers
+     * @throws IOException
+     */
     private static File[] Recherche(CanalHistoHSV histo) throws IOException {
 
         int cpt = 0;
@@ -160,9 +160,7 @@ public class PartieHSV {
             getHistoTraite(image);
             double distanceEuclidienne = ImageDistance(histo, image);
             test.put(distanceEuclidienne, fichier.getName());
-            }
-
-
+        }
 
         Set set = test.entrySet();
         Iterator itr = set.iterator();
@@ -172,7 +170,7 @@ public class PartieHSV {
                 String im = (String) test2.getValue();
                 System.out.println(test2);
 
-               cpt++;
+                cpt++;
 
                 if (((String) test2.getValue()).contains("paysage")){
                     linecounter+=1;
@@ -188,8 +186,14 @@ public class PartieHSV {
 
         return listeImage;
     }
+
+    /**
+     * Cette fonction permet de discretisé un histogramme
+     * @param histogram
+     * @return un Histogramme discretisé
+     */
     private static double[] discretisation(double[] histogram) {
-        
+
         double[] nouvelHisto = new double[histogram.length / 2];
 
         for (int i = 0; i < nouvelHisto.length - 1; i = i + 2) {
@@ -199,6 +203,11 @@ public class PartieHSV {
         return nouvelHisto;
     }
 
+    /**
+     * Cette fonction permet de normalisé un histogramme
+     * @param histogram
+     * @return un histogramme normalisé
+     */
     private static double[] normalisation(double[] histogram) {
         double pourcentage = 0;
         double[] histo = new double[histogram.length];
@@ -216,6 +225,11 @@ public class PartieHSV {
         return histo;
     }
 
+    /**
+     * je ne sais pas
+     * @param histo
+     * @return
+     */
     public static CanalHistoHSV getHistoTraite(CanalHistoHSV histo){
         ImageCouleur image = new ImageCouleur(histo.getImage());
         histo.setcV(discretisation(histo.getcv(histo.getImage())));
@@ -227,6 +241,13 @@ public class PartieHSV {
 
         return histo;
     }
+
+    /**
+     * je ne sais pas
+     * @param image
+     * @param canal
+     * @return un histogramme
+     */
     public static double[] getHisto(Image image, int canal) {
         double histogramme[] = new double[256];
         for (int i = 0; i < histogramme.length; i++) {
@@ -240,6 +261,14 @@ public class PartieHSV {
 
         return histogramme;
     }
+
+    /**
+     * Cette fonction permet de convertir le RGB en HSV
+     * @param img
+     * @param absice
+     * @param ordonner
+     * @return un tableau contenant HSV
+     */
     public static double[] conversionRGBenHSV(Image img, int absice, int ordonner){
         int nbDime = img.getBDim();
         double Rouge,Vert,Bleu;
@@ -293,6 +322,13 @@ public class PartieHSV {
         nvlRefV=normalisation(nvlRefV);
         nvlRefB=normalisation(nvlRefB);
     }*/
+    /**
+     * Cette fonction permet de calculer la distance entre les images
+     * @param reference
+     * @param imageComp
+     * @return la distance entre deux images
+     * @throws IOException
+     */
     public static double ImageDistance(CanalHistoHSV reference, CanalHistoHSV imageComp) throws IOException {
 
         ImageCouleur couleur1 = new ImageCouleur(reference.getImage());
@@ -305,14 +341,15 @@ public class PartieHSV {
         int expo = 2;
         //Test image en couleur
         //System.out.println(Arrays.toString(reference.getcV()));
-            for (int c = 0; c <  reference.getcS().length; c++) {
-                double calcul = reference.getcS()[c] - imageComp.getcS()[c];
-                distance1 += Math.pow(calcul, expo);
-            }
-            for (int d = 0; d <reference.getcV().length; d++) {
-                double calcul = reference.getcV()[d] -  imageComp.getcV()[d];
-                distance2 += Math.pow(calcul, expo);
-            }
+        for (int c = 0; c <  reference.getcS().length; c++) {
+            double calcul = reference.getcS()[c] - imageComp.getcS()[c];
+            distance1 += Math.pow(calcul, expo);
+        }
+
+        for (int d = 0; d <reference.getcV().length; d++) {
+            double calcul = reference.getcV()[d] -  imageComp.getcV()[d];
+            distance2 += Math.pow(calcul, expo);
+        }
 
         for (int g = 0; g <reference.getcH().length; g++) {
             double calcul = reference.getcH()[g] - imageComp.getcH()[g];
