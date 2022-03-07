@@ -1,5 +1,3 @@
-
-
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +21,7 @@ public class HistogramTools {
 
 
     /**
-     * @param histogram tableau représsentant l'histogramme
+     * @param histogram Tableau représentant l'histogramme
      * @throws IOException
      */
     public static void plotHistogram(double [] histogram,String couleur) throws IOException{
@@ -52,8 +50,8 @@ public class HistogramTools {
     }
 
     /**
-     * @param histogram tableau représsentant l'histogramme
-     * @param pathToSave chemin de sauvegarde de l'histogramme
+     * @param histogram Tableau représentant l'histogramme
+     * @param pathToSave Chemin de sauvegarde de l'histogramme
      * @throws IOException
      */
     public static void saveHistogram(double [] histogram, String pathToSave) throws IOException{
@@ -78,7 +76,4 @@ public class HistogramTools {
         if(pathToSave!=null)
             ChartUtilities.saveChartAsPNG(new File(pathToSave), jfreechart, 900, 600);
     }
-
-
-}
 }
