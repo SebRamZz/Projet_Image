@@ -1,25 +1,44 @@
 import fr.unistra.pelican.Image;
 
+/**
+ * Cette classe permet de retourner la couleur de l'image
+ * Regarde si une image et en couleurs ou si elle est grise
+ */
 public class ImageCouleur {
     private Image image;
     public static boolean couleur;
 
+    /**
+     * Prend une Image en paramètre
+     * @param image
+     */
     public ImageCouleur(Image image){
         this.image=image;
         couleur(image);
     }
 
+    /**
+     * Prend une image et retourne la couleur de l'image (gris ou en couleurs)
+     * @param image
+     * @return la couleur
+     */
     public static boolean couleur(Image image) {
         if (image.getBDim() > 2) {
-               couleur=true;
+            couleur=true;
         } else {
             couleur=false;
         }
-     return couleur;
+        return couleur;
     }
 
+    /**
+     * @return une image
+     */
     public Image getImage(){return image;}
 
+    /**
+     * @return la couleur
+     */
     public static boolean getCouleur() {
         return couleur;
     }
