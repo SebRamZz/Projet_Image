@@ -1,59 +1,97 @@
 import fr.unistra.pelican.Image;
 import fr.unistra.pelican.algorithms.io.ImageLoader;
 
+/**
+ * CanalHisto représente les tableaux de couleurs : ROUGE, BLEU, VERT
+ * CanalHisto reprensente un Histogramme
+ */
 public class CanalHisto {
-    double[] cRouge;
-    double[] cBleu;
-    double[] cVert;
+    double[] cRouge; //Tableau Rouge
+    double[] cBleu; //Tableau Bleu
+    double[] cVert; //Tableau Vert
     Image image;
     String nomImage;
     String lien;
 
+    /**
+     * Prends un lien d'une image en paramètre pour avoir son Histogramme
+     * @param nomImage
+     * @param lien de l'image
+     */
     public CanalHisto(String nomImage,String lien) {
         this.lien=lien;
         this.image=ImageLoader.exec(lien);
         getCanalHisto(image);
     }
 
+    /**
+     * Prends une image en paramètre pour avoir un histogramme [256][Vert], [256][Bleu], [256][Rouge]
+     * @param image
+     */
     public void getCanalHisto(Image image) {
-
         if (image.getBDim() > 2) {
-            cVert = PartieI.getHisto(image, 1);
-            cBleu = PartieI.getHisto(image, 2);
+            cVert = PartieRGB.getHisto(image, 1); // Appel la fonction getHisto dans la classe PartieRGB
+            cBleu = PartieRGB.getHisto(image, 2); // Appel la fonction getHisto dans la classe PartieRGB
         }
-        cRouge = PartieI.getHisto(image, 0);
+        cRouge = PartieRGB.getHisto(image, 0); // Appel la fonction getHisto dans la classe PartieRGB
     }
 
+    /**
+     * @return une image
+     */
     public Image getImage(){return image;}
+
+    /**
+     * @return la couleur Rouge
+     */
     public double[] getCRouge() {
         return cRouge;
     }
 
+    /**
+     * @return la couleur Vert
+     */
     public double[] getCVert() {
         return cVert;
     }
 
+    /**
+     * @return la couleur Bleu
+     */
     public double[] getCBleu() {
         return cBleu;
     }
 
+    /**
+     * Prend en Paramètre le tableau de couleur Rouge
+     * @param cRouge
+     */
     public void setcRouge(double[] cRouge) {
         this.cRouge = cRouge;
     }
 
+    /**
+     * Prend en Paramètre le tableau de couleur Bleu
+     * @param cBleu
+     */
     public void setcBleu(double[] cBleu) {
         this.cBleu = cBleu;
     }
 
+    /**
+     * Prend en Paramètre le tableau de couleur Vert
+     * @param cVert
+     */
     public void setcVert(double[] cVert) {
         this.cVert = cVert;
     }
 
+    /**
+     * Prend une image en Paramètre
+     * @param image
+     */
     public void setImage(Image image) {
         this.image = image;
     }
-
-
 }
-
 
