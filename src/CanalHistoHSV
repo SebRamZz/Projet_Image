@@ -1,119 +1,169 @@
 import fr.unistra.pelican.Image;
 import fr.unistra.pelican.algorithms.io.ImageLoader;
 
+/**
+ * Cette classe permet d'avoir les canaux de teinte, intensité, saturation
+ */
 public class CanalHistoHSV {
+    double [] histoC;
+    double[] cS;
+    double[] cV;
+    Image image;
+    String nomImage;
+    String lien;
 
+    /**
+     * Prend une image en paramètre
+     * @param nomImage
+     * @param lien
+     */
+    public CanalHistoHSV(String nomImage,String lien) {
+        this.lien=lien;
+        this.image=ImageLoader.exec(lien);
+        getCS(image);
+        getCH(image);
+        getcv(image);
+    }
 
-        double [] histoC;
-        double[] cS;
-        double[] cV;
-        Image image;
-        String nomImage;
-        String lien;
-
-        public CanalHistoHSV(String nomImage,String lien) {
-            this.lien=lien;
-            this.image=ImageLoader.exec(lien);
-            getCS(image);
-            getCH(image);
-            getcv(image);
+    /**
+     * La fonction n'est pas utilisé donc je sais pas
+     * @param image
+     */
+    public void getCanalHisto(Image image) {
+        if (image.getBDim() > 2) {
+            cV = PartieHSV.getHisto(image, 1);
+            cS = PartieHSV.getHisto(image, 2);
         }
+        histoC = PartieHSV.getHisto(image, 0);
+    }
 
-      public void getCanalHisto(Image image) {
+    /**
+     * @return l'image
+     */
+    public Image getImage(){return image;}
 
-            if (image.getBDim() > 2) {
-                cV = PartieHSV.getHisto(image, 1);
-                cS = PartieHSV.getHisto(image, 2);
+    /**
+     * Prend une image de couleurs et renvoie la teinte de l'image
+     * @param image
+     * @return la teinte
+     */
+    public double[] getCH(Image image) {
+        int hauteur = image.getYDim(); // on obtient la hauteur de l'image
+        int largeur = image.getXDim(); // on obtient la largeur de l'image
+        double [] HSV;
+        this.histoC = new double[361]; // definit la taille du tableau de la teinte
+
+        for(int i = 0; i < histoC.length; i++){
+            histoC[i]=0;
+        }
+        // Parcourt toutes l'image en hauteur et largeur et converti chaque pixels pour avoir la teinte
+        for(int x = 0; x < largeur; x++){
+            for(int y = 0; y < hauteur; y++){
+                HSV = PartieHSV.conversionRGBenHSV(image,x,y); // Appel la fonction de conversion de RGB en HSV
+                histoC[(int)(HSV[0])]+=1;
             }
-            histoC = PartieHSV.getHisto(image, 0);
         }
+        return histoC;
+    }
 
-        public Image getImage(){return image;}
+    /**
+     * Prend une image de couleurs et renvoie l'intensité de l'image
+     * @param image
+     * @return l'intensité
+     */
+    public double[] getcv(Image image) {
+        int hauteur = image.getYDim(); // on obtient la hauteur de l'image
+        int largeur = image.getXDim(); // on obtient la largeur de l'image
+        double [] HSV;
+        this.cV = new double[101]; // definit la taille du tableau de la Saturation
 
-
-        public double[] getCH(Image image) {
-            int hauteur = image.getYDim();
-            int largeur = image.getXDim();
-            double [] HSV;
-           this.histoC = new double[361];
-
-            for(int i = 0; i < histoC.length; i++){
-               histoC[i]=0;
+        for(int i = 0; i < cV.length; i++){
+            cV[i]=0;
+        }
+        // Parcourt toutes l'image en hauteur et largeur et converti chaque pixels pour avoir l'intensité
+        for(int x = 0; x < largeur; x++){
+            for(int y = 0; y < hauteur; y++){
+                HSV = PartieHSV.conversionRGBenHSV(image,x,y); // Appel la fonction de conversion de RGB en HSV
+                cV[(int)(HSV[2]*100)]+=1;;
             }
+        }
+        return cV;
+    }
 
-            for(int x = 0; x < largeur; x++){
-                for(int y = 0; y < hauteur; y++){
-                   HSV = PartieHSV.conversionRGBenHSV(image,x,y);
-                     histoC[(int)(HSV[0])]+=1;
-                }
+    /**
+     * Prend une image de couleurs et renvoie la saturation de l'image
+     * @param image
+     * @return la saturation
+     */
+    public double[] getCS(Image image) {
+        int hauteur = image.getYDim(); // on obtient la hauteur de l'image
+        int largeur = image.getXDim();  // on obtient la largeur de l'image
+        double [] HSV;
+        this.cS = new double[101]; // definit la taille du tableau de la Saturation
+
+        for(int i = 0; i < cS.length; i++){
+            cS[i]=0;
+        }
+
+        // Parcourt toutes l'image en hauteur et largeur et converti chaque pixels pour avoir la saturation
+        for(int x = 0; x < largeur; x++){
+            for(int y = 0; y < hauteur; y++){
+                HSV = PartieHSV.conversionRGBenHSV(image,x,y); // Appel la fonction de conversion de RGB en HSV
+                cS[(int)(HSV[1]*100)]+=1;
             }
-            return histoC;
         }
+        return cS;
+    }
 
+    /**
+     *
+     * @param cH
+     */
+    public void setcH(double[] cH) {
+        this.histoC = cH;
+    }
 
-        public double[] getcv(Image image) {
-            int hauteur = image.getYDim();
-            int largeur = image.getXDim();
-            double [] HSV;
-            this.cV = new double[101];
+    /**
+     *
+     * @param cS
+     */
+    public void setcS(double[] cS) {
+        this.cS = cS;
+    }
 
-            for(int i = 0; i < cV.length; i++){
-                cV[i]=0;
-            }
+    /**
+     *
+     * @param cV
+     */
+    public void setcV(double[] cV) {
+        this.cV = cV;
+    }
 
-            for(int x = 0; x < largeur; x++){
-                for(int y = 0; y < hauteur; y++){
-                  HSV = PartieHSV.conversionRGBenHSV(image,x,y);
-                    cV[(int)(HSV[2]*100)]+=1;;
-                }
-            }
-            return cV;
-        }
+    /**
+     *
+     * @param image
+     */
+    public void setImage(Image image) {
+        this.image = image;
+    }
 
-        public double[] getCS(Image image) {
-            int hauteur = image.getYDim();
-            int largeur = image.getXDim();
-            double [] HSV;
-            this.cS = new double[101];
-
-            for(int i = 0; i < cS.length; i++){
-                cS[i]=0;
-            }
-
-
-            for(int x = 0; x < largeur; x++){
-                for(int y = 0; y < hauteur; y++){
-                     HSV = PartieHSV.conversionRGBenHSV(image,x,y);
-                    cS[(int)(HSV[1]*100)]+=1;
-                }
-            }
-            return cS;
-        }
-
-
-        public void setcH(double[] cH) {
-            this.histoC = cH;
-        }
-
-        public void setcS(double[] cS) {
-            this.cS = cS;
-        }
-
-        public void setcV(double[] cV) {
-            this.cV = cV;
-        }
-
-        public void setImage(Image image) {
-            this.image = image;
-        }
+    /**
+     * @return la teinte (Hue)
+     */
     public double[] getcH() {
         return  histoC;
     }
 
+    /**
+     * @return la saturation
+     */
     public double[] getcS() {
         return cS;
     }
 
+    /**
+     * @return l'intensité (Value)
+     */
     public double[] getcV() {
         return cV;
     }
