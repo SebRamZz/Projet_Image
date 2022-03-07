@@ -17,9 +17,15 @@ import javax.swing.*;
 
 import static java.lang.Math.*;
 
-
-public class PartieI {
-
+/**
+ * Cette classe contient toutes la partie 1 c'est-à-dire la construction de l'histogramme, la descritisation, la normalisation et la recherche d'image
+ */
+public class PartieRGB {
+    /**
+     * Le main ou on appels nos fonctions pour les utilisés
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
         Image image = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Test\\cercle.png");
         Image image2 = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Test\\cercle.png");
@@ -33,7 +39,7 @@ public class PartieI {
         f.setSize(400, 400);
         f.setLayout(null);
         f.setVisible(true);
-       CanalHisto nvlImage = new CanalHisto("paysage1.jpg","C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\etape\\paysage1.jpg");
+        CanalHisto nvlImage = new CanalHisto("paysage1.jpg","C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\etape\\paysage1.jpg");
 
         /*HistogramTools.plotHistogram(nvBleuImage, "bleu");*/
         //Recherche("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\Test");
@@ -43,31 +49,32 @@ public class PartieI {
         Recherche(nvlImage);
         //Viewer2D.exec(median);
         //HistogramTools.plotHistogram(nvBleuImage, "bleu");
-       // Image test = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\motos\\motos\\");
+        // Image test = ImageLoader.exec("C:\\Users\\elodi\\OneDrive\\Documents\\Dut informatique 2\\Image\\Image\\motos\\motos\\");
 
         //test.setColor(true);
-
-
     }
 
+    /**
+     * Fonction de la median
+     * @param image
+     * @return
+     */
     public static Image median(Image image) {
         /**
          * Cette fonction appelle la fonction medianCouleur ou medianGris en fonction du nombres de canaux dans une image
          */
         ImageCouleur couleur = new ImageCouleur(image);
         if(couleur.getCouleur()==true){
-        /*if (image.getBDim() > 2) {*/
+            /*if (image.getBDim() > 2) {*/
             return medianCouleur(image);
         } else {
             return medianGris(image);
         }
-
     }
 
     public static Image medianCouleur(Image imageDepart) {
         /**
          * Cette fonction applique le filtre median sur l'imageDepart qui est une image en couleur.
-         *
          * @param imageDepart l'imageDepart est l'image bruité à réparer
          *
          */
@@ -111,7 +118,6 @@ public class PartieI {
                         imageDepart.getPixelXYBByte(x, y + 1, 2),
                         imageDepart.getPixelXYBByte(x + 1, y, 2)
                 };
-
                 Arrays.sort(TabCanal0);
                 Arrays.sort(TabCanal1);
                 Arrays.sort(TabCanal2);
@@ -130,7 +136,6 @@ public class PartieI {
     public static Image medianGris(Image imageDepart) {
         /**
          * Cette fonction applique le filtre median sur l'imageDepart qui est une image de couleur grise.
-         *
          * @param imageDepart l'imageDepart bruitée à traiter
          *
          */
@@ -159,9 +164,13 @@ public class PartieI {
         return new_image;
     }
 
-
+    /**
+     * Cette fonction permet de rechercher les images similaire et d'en sortir les 10 meilleurs
+     * @param histo
+     * @return un fichiers
+     * @throws IOException
+     */
     private static File[] Recherche(CanalHisto histo) throws IOException {
-
         int cpt = 0;
         histo.setImage(median(histo.getImage()));
         histo = getHistoTraite(histo);
@@ -177,10 +186,7 @@ public class PartieI {
             image = getHistoTraite(image);
             double distanceEuclidienne = ImageDistance(histo, image);
             test.put(distanceEuclidienne, fichier.getName());
-
-
         }
-
 
         Set set = test.entrySet();
         Iterator itr = set.iterator();
@@ -188,9 +194,9 @@ public class PartieI {
             if (cpt < 10) {
                 Map.Entry test2 = (Map.Entry) itr.next();
                 String im = (String) test2.getValue();
-                    System.out.println(test2);
-
+                System.out.println(test2);
                 cpt++;
+
                 if (((String) test2.getValue()).contains("paysage")){
                     linecounter+=1;
                 }
@@ -198,25 +204,33 @@ public class PartieI {
             } else {
                 break;
             }
-
         }
         System.out.println((linecounter*100)/10+"% de precision");
 
-
         return listeImage;
     }
+
+    /**
+     * Cette fonction permet de discretisé un histogramme
+     * @param histogram
+     * @return un Histogramme discretisé
+     */
     private static double[] discretisation(double[] histogram) {
 
         /*int nvlValeur = histogram.length / nbDiv;*/ //division de la taille de l'histogramme par un nombre donné en paramètres.
         double[] nouvelHisto = new double[histogram.length / 64];
 
         for (int i = 0; i < nouvelHisto.length - 1; i=i+2) {
-
             nouvelHisto[i] = histogram[i] + histogram[i];  //
         }
         return nouvelHisto;
     }
 
+    /**
+     * Cette fonction permet de normalisé un histogramme
+     * @param histogram
+     * @return un histogramme normalisé
+     */
     private static double[] normalisation(double[] histogram) {
         double pourcentage = 0;
         double[] histo = new double[histogram.length];
@@ -230,10 +244,14 @@ public class PartieI {
             histo[i] = (histogram[i] * 100) / totalPixels;
             pourcentage += histo[i];
         }
-
         return histo;
     }
 
+    /**
+     * je ne sais pas
+     * @param histo
+     * @return
+     */
     public static CanalHisto getHistoTraite(CanalHisto histo){
         ImageCouleur image = new ImageCouleur(histo.getImage());
         if(image.getCouleur()==true){
@@ -241,13 +259,19 @@ public class PartieI {
             histo.setcBleu(discretisation(histo.getCBleu()));
             histo.setcVert(normalisation(histo.getCVert()));
             histo.setcBleu(normalisation(histo.getCBleu()));
-
         }
         histo.setcRouge(discretisation(histo.getCBleu()));
         histo.setcVert(normalisation(histo.getCVert()));
 
         return histo;
     }
+
+    /**
+     * je ne sais pas
+     * @param image
+     * @param canal
+     * @return un histogramme
+     */
     public static double[] getHisto(Image image, int canal) {
         double histogramme[] = new double[256];
         for (int i = 0; i < histogramme.length; i++) {
@@ -258,11 +282,16 @@ public class PartieI {
                 histogramme[image.getPixelXYBByte(x, y, canal)] += 1;
             }
         }
-
         return histogramme;
     }
 
-
+    /**
+     * Cette fonction permet de calculer la distance entre les images
+     * @param reference
+     * @param imageComp
+     * @return la distance entre deux images
+     * @throws IOException
+     */
     public static double ImageDistance(CanalHisto reference, CanalHisto imageComp) throws IOException {
 
         ImageCouleur couleur1 = new ImageCouleur(reference.getImage());
@@ -280,29 +309,25 @@ public class PartieI {
             for (int c = 0; c < reference.getCBleu().length; c++) {
                 double calcul = reference.getCBleu()[c] - imageComp.getCBleu()[c];
                 distance1 += Math.pow(calcul, expo);
-
             }
+
             for (int d = 0; d < reference.getCVert().length; d++) {
                 double calcul = reference.getCVert()[d] -  imageComp.getCVert()[d];
                 distance2 += Math.pow(calcul, expo);
             }
         }
 
-
-            for (int g = 0; g < reference.getCRouge().length; g++) {
-                double calcul = reference.getCRouge()[g] - imageComp.getCRouge()[g];
-                distance3 += Math.pow(calcul, expo);
-            }
+        for (int g = 0; g < reference.getCRouge().length; g++) {
+            double calcul = reference.getCRouge()[g] - imageComp.getCRouge()[g];
+            distance3 += Math.pow(calcul, expo);
+        }
 
         double distanceEuclidienne1= Math.sqrt(distance1);
         double distanceEuclidienne2 = Math.sqrt(distance2);
         double distanceEuclidienne3= Math.sqrt(distance3);
         double distanceFinale=distanceEuclidienne1+distanceEuclidienne2+distanceEuclidienne3;
 
-    return distanceFinale;
+        return distanceFinale;
     }
-
-
 }
-
 
